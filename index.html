@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CropDoctor AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Clash+Display:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="logo-icon">🌿</div>
+    <div class="logo-text">CropDoctor <span>AI</span></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <button id="loginBtn" onclick="googleLogin()" style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:100px;background:#fff;color:#111;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;box-shadow:0 2px 12px rgba(0,0,0,0.4);">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="16" height="16"/>
+      Sign in with Google
+    </button>
+    <div id="userInfo" class="hidden" style="display:flex;align-items:center;gap:10px;">
+      <img id="userPhoto" width="32" height="32" style="border-radius:50%;border:2px solid var(--green);"/>
+      <span id="userName" style="font-size:12px;font-weight:600;color:var(--text2);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+      <button onclick="googleLogout()" style="padding:5px 12px;border-radius:100px;background:transparent;border:1px solid var(--border2);color:var(--text3);font-size:11px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Sign Out</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-pill">🟢 Live & Free to Use</div>
+  <h1>
+    Detect Any Crop<br>
+    <span class="line2">Disease Instantly</span>
+  </h1>
+  <p class="hero-sub">Upload a photo of your plant — our AI diagnoses the disease, severity level, and gives you a complete treatment plan in seconds.</p>
+  <div class="hero-stats">
+    <div class="hstat"><span class="hstat-n">500+</span><span class="hstat-l">Diseases</span></div>
+    <div class="hstat-div"></div>
+    <div class="hstat"><span class="hstat-n">98%</span><span class="hstat-l">Accuracy</span></div>
+    <div class="hstat-div"></div>
+    <div class="hstat"><span class="hstat-n">~5s</span><span class="hstat-l">Analysis Time</span></div>
+    <div class="hstat-div"></div>
+    <div class="hstat"><span class="hstat-n">Free</span><span class="hstat-l">Always</span></div>
+  </div>
+</section>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- UPLOAD CARD -->
+  <div class="card" id="uploadCard">
+    <div class="upload-header">
+      <div class="upload-header-icon">📸</div>
+      <div>
+        <h2>Upload Plant Photo</h2>
+        <p>Take a clear photo of the affected leaf or plant</p>
+      </div>
+    </div>
+
+    <div class="dropzone" id="dropzone"
+      onclick="document.getElementById('fileInput').click()"
+      ondragover="onDragOver(event)"
+      ondragleave="onDragLeave()"
+      ondrop="onDrop(event)">
+      <div class="dz-content" id="dzContent">
+        <div class="dz-circle">📷</div>
+        <div class="dz-title">Drop your photo here</div>
+        <div class="dz-sub">or <span>click to browse</span> &nbsp;·&nbsp; JPG, PNG, WEBP</div>
+      </div>
+      <img id="previewImg" class="hidden" alt="preview"/>
+      <div class="preview-overlay hidden" id="previewOverlay">✅ Photo ready</div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="onFileSelect(event)"/>
+
+    <div style="margin-bottom:18px;">
+      <p style="font-size:11px;color:var(--text3);font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">📋 Photo Tips for Best Results</p>
+      <div class="tips">
+        <span class="tip" style="color:var(--green);border-color:rgba(34,197,94,0.2);">👍 Close-up of leaf</span>
+        <span class="tip" style="color:var(--green);border-color:rgba(34,197,94,0.2);">👍 Good lighting</span>
+        <span class="tip" style="color:var(--green);border-color:rgba(34,197,94,0.2);">👍 Clear &amp; focused</span>
+        <span class="tip" style="color:var(--amber);border-color:rgba(245,158,11,0.2);">👎 Avoid blurry photos</span>
+        <span class="tip" style="color:var(--amber);border-color:rgba(245,158,11,0.2);">👎 Avoid dark images</span>
+      </div>
+    </div>
+
+    <button class="btn-analyze" id="analyzeBtn" onclick="analyze()" disabled>
+      <span class="btn-icon">🔬</span>
+      <span id="analyzeBtnText">Select a Photo First</span>
+    </button>
+  </div>
+
+  <!-- LOADING -->
+  <div class="card loading-card hidden" id="loadingCard">
+    <div class="scan-animation">
+      🌿
+      <div class="scan-line"></div>
+    </div>
+    <div class="loading-title">Analyzing your plant...</div>
+    <div class="loading-sub">Gemini AI is examining the image</div>
+    <div class="steps">
+      <div class="step" id="s1"><div class="step-dot"></div>🔍 Scanning image patterns...</div>
+      <div class="step" id="s2"><div class="step-dot"></div>🧬 Identifying disease markers...</div>
+      <div class="step" id="s3"><div class="step-dot"></div>💊 Building treatment plan...</div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="card hidden" id="resultCard">
+
+    <div class="result-top">
+      <div class="result-emoji" id="rEmoji">🌿</div>
+      <div class="result-info">
+        <div class="result-label" id="rLabel">DIAGNOSIS</div>
+        <div class="result-name" id="rDisease">—</div>
+        <div class="result-crop" id="rCrop">—</div>
+      </div>
+      <div class="sev-badge" id="rSev">—</div>
+    </div>
+
+    <div class="conf-row">
+      <span class="conf-label">AI Confidence</span>
+      <div class="conf-track"><div class="conf-fill" id="confFill"></div></div>
+      <span class="conf-pct" id="confPct">—</span>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('symptoms',this)">🔬 Symptoms</button>
+      <button class="tab" onclick="switchTab('causes',this)">🧪 Causes</button>
+      <button class="tab" onclick="switchTab('treatment',this)">💊 Treatment</button>
+      <button class="tab" onclick="switchTab('prevention',this)">🛡️ Prevention</button>
+    </div>
+
+    <div class="tab-pane" id="symptoms"></div>
+    <div class="tab-pane hidden" id="causes"></div>
+    <div class="tab-pane hidden" id="treatment"></div>
+    <div class="tab-pane hidden" id="prevention"></div>
+
+    <div class="weather-box" id="weatherBox">
+      <span>🌦️</span><span id="weatherText"></span>
+    </div>
+
+    <div class="actions">
+      <button class="btn-secondary" onclick="saveReport()">💾 Save Report</button>
+      <button class="btn-secondary" onclick="shareResult()">📤 Share</button>
+      <button class="btn-new" onclick="resetApp()">🔄 New Scan</button>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="card hidden" id="historyCard">
+    <div class="history-header">
+      <h3>📋 Recent Scans</h3>
+      <button class="btn-clear" onclick="clearHistory()">Clear All</button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <!-- ERROR -->
+  <div class="card error-card hidden" id="errorCard">
+    <div class="error-icon">⚠️</div>
+    <h3 id="errTitle">Something went wrong</h3>
+    <p id="errMsg">Please try again.</p>
+    <button class="btn-retry" onclick="resetApp()">Try Again</button>
+  </div>
+
+</main>
+
+<!-- HOW IT WORKS -->
+<section class="how">
+  <h2>How <span>CropDoctor</span> Works</h2>
+  <div class="how-grid">
+    <div class="how-card">
+      <div class="how-num">STEP 01</div>
+      <div class="how-icon">📷</div>
+      <h3>Upload Photo</h3>
+      <p>Take or upload a photo of the affected plant or leaf area</p>
+    </div>
+    <div class="how-card">
+      <div class="how-num">STEP 02</div>
+      <div class="how-icon">🤖</div>
+      <h3>AI Scans</h3>
+      <p>Gemini AI analyzes the image for disease patterns and markers</p>
+    </div>
+    <div class="how-card">
+      <div class="how-num">STEP 03</div>
+      <div class="how-icon">📋</div>
+      <h3>Get Diagnosis</h3>
+      <p>Receive disease name, severity score, and confidence level</p>
+    </div>
+    <div class="how-card">
+      <div class="how-num">STEP 04</div>
+      <div class="how-icon">💊</div>
+      <h3>Treatment Plan</h3>
+      <p>Step-by-step organic and chemical treatment options instantly</p>
+    </div>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+
+<script src="js/app.js"></script>
+</body>
+</html>
