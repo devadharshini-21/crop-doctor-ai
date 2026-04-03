@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════
 //  🔧 PASTE YOUR KEYS HERE
 // ═══════════════════════════════════════════════
-const GEMINI_KEY = "AIzaSyC3RI53QszawumymKsWkh_Xhoktid0sJy4";
+const GEMINI_KEY = "AIzaSyACnS2bifXUNjjeiPiB8ks645jnUbQkdoU";
 
 const FIREBASE_CONFIG = {
   apiKey:            "AIzaSyDqwyn8ARuRi2cwVsJA01LVuQjSN-MO2jk",
